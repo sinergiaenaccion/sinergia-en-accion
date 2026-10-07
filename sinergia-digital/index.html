@@ -12,6 +12,8 @@
 <script>
 const ACCESS={"SINERGIA-DEMO":"Espacio de demostración","VT-26-DIAG":"VT","JOEY-26-DIAG":"Joey"};let code="",company="",ans={},cur=0;const mods=[...document.querySelectorAll(".mod")],app=document.getElementById("app");
 function save(){localStorage.setItem("sd",JSON.stringify({code,company,ans}))}function load(){try{const x=JSON.parse(localStorage.getItem("sd")||"null");if(x){code=x.code||"";company=x.company||"";ans=x.ans||{}}}catch{}}load();
+const prefillEmail=new URLSearchParams(location.search).get("email");
+if(prefillEmail){const el=document.getElementById("leadEmail");if(el)el.value=prefillEmail}
 function render(n){cur=n;mods.forEach((m,i)=>m.classList.toggle("active",i===n));let p=Math.round(n/7*100);document.getElementById("pl").textContent="Módulo "+(n+1)+" de 7";document.getElementById("pp").textContent=p+"%";document.getElementById("pb").style.width=p+"%";window.scrollTo({top:app.offsetTop-15,behavior:"smooth"})}
 document.addEventListener("input",e=>{if(e.target.dataset.k){ans[e.target.dataset.k]=e.target.value;save()}});
 document.addEventListener("click",e=>{let b=e.target.closest(".opt");if(b){let box=b.parentElement,k=box.dataset.k;if(box.classList.contains("multi")){let a=Array.isArray(ans[k])?[...ans[k]]:[];let i=a.indexOf(b.dataset.v);i>=0?a.splice(i,1):a.push(b.dataset.v);ans[k]=a;b.classList.toggle("sel",i<0)}else{box.querySelectorAll(".opt").forEach(x=>x.classList.remove("sel"));b.classList.add("sel");ans[k]=b.dataset.v}save()}if(e.target.closest(".next"))render(cur+1);if(e.target.closest(".prev"))render(cur-1)});
