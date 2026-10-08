@@ -17,6 +17,6 @@ document.getElementById("continueBooking").onclick=()=>{
  const item={title:service.name+" · "+(mode==="virtual"?"Virtual":"Presencial"),price:service.base,qty:1,source:"agenda",serviceId:service.id,modality:mode,voucher};
  localStorage.setItem("sinergiaBooking",JSON.stringify({serviceId:service.id,service:item,attendanceConfirmed:true,voucher,createdAt:new Date().toISOString()}));
  if(voucher){msg.textContent="El voucher se validará antes de confirmar la reserva. Continuamos con la agenda."; }
- window.location.href="/agenda-checkout.html?service="+encodeURIComponent(service.id)+"&modality="+encodeURIComponent(mode);
+ window.location.href="/carrito.html?service="+encodeURIComponent(service.id)+"&modality="+encodeURIComponent(mode);
 };
 </script></body></html>
