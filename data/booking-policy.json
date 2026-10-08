@@ -1,39 +1,87 @@
 {
-  "version":"2026-10-08-v1",
-  "defaultRule":"La reserva de una asesoría implica un servicio arancelado, salvo que se aplique un cupón o voucher válido.",
-  "currency":"ARS",
-  "voucher":{
-    "fieldDefault":"",
-    "placeholder":"",
-    "serverValidationRequired":true,
-    "singleUseRecommended":true,
-    "expiryRecommended":true,
-    "zeroBalanceCanConfirm":true
+  "version": "2026-10-08-v2",
+  "defaultRule": "La reserva de una asesoría implica un servicio arancelado, salvo que se aplique un cupón o voucher válido.",
+  "currency": "ARS",
+  "voucher": {
+    "fieldDefault": "",
+    "placeholder": "",
+    "serverValidationRequired": true,
+    "singleUseRecommended": true,
+    "expiryRecommended": true,
+    "zeroBalanceCanConfirm": true
   },
-  "attendance":{
-    "requiredConfirmation":true,
-    "text":"Me comprometo a asistir al encuentro en la fecha y horario elegidos. Si necesito reprogramar, lo haré con la anticipación indicada por Sinergia.",
-    "noShowPolicy":"Debe definirse por servicio antes de publicar la condición comercial."
+  "attendance": {
+    "requiredConfirmation": true,
+    "text": "Me comprometo a asistir al encuentro en la fecha y horario elegidos. Si necesito reprogramar, utilizaré el botón de reprogramación y respetaré las condiciones indicadas por Sinergia.",
+    "noShowPolicy": "Debe definirse por servicio antes de publicar la condición comercial.",
+    "rescheduling": {
+      "maxFreeReschedules": 2,
+      "additionalReschedules": "A partir de la tercera reprogramación, se genera una nueva reserva y puede corresponder un nuevo arancel.",
+      "noShow": "La inasistencia sin reprogramación previa no da derecho a devolución ni conserva el importe abonado.",
+      "paidValue": "El importe abonado se pierde ante un no-show.",
+      "cutoffHours": "Definir antes de publicar la condición comercial; se recomienda establecer una anticipación mínima."
+    }
   },
-  "booking":{
-    "statusFlow":["draft","pending_payment","confirmed","reschedule_requested","completed","cancelled","no_show"],
-    "calendarInvite":true,
-    "emailConfirmation":true,
-    "reminderHours":[24],
-    "timezone":"America/Argentina/Cordoba",
-    "preventDoubleBooking":true,
-    "bufferMinutes":15
+  "booking": {
+    "statusFlow": [
+      "draft",
+      "pending_payment",
+      "confirmed",
+      "reschedule_requested",
+      "completed",
+      "cancelled",
+      "no_show"
+    ],
+    "calendarInvite": true,
+    "emailConfirmation": true,
+    "reminderHours": [
+      24
+    ],
+    "timezone": "America/Argentina/Cordoba",
+    "preventDoubleBooking": true,
+    "bufferMinutes": 15,
+    "rescheduleTracking": true,
+    "rescheduleButton": true,
+    "auditTrail": [
+      "created",
+      "payment_received",
+      "confirmed",
+      "reminder_sent",
+      "reschedule_requested",
+      "rescheduled",
+      "completed",
+      "cancelled",
+      "no_show"
+    ]
   },
-  "payment":{
-    "requiredBeforeConfirmation":true,
-    "freeVoucherBypass":true,
-    "checkout":"shared",
-    "recommendedProvider":"Mercado Pago",
-    "receiptAndInvoice":"Definir según titularidad y régimen fiscal antes de comercializar."
+  "payment": {
+    "requiredBeforeConfirmation": true,
+    "freeVoucherBypass": true,
+    "checkout": "shared",
+    "recommendedProvider": "Mercado Pago",
+    "receiptAndInvoice": "Definir según titularidad y régimen fiscal antes de comercializar."
   },
-  "sharedArchitecture":{
-    "appliesTo":"Todas las cuentas con agenda",
-    "brandSpecific":"Cada cuenta conserva su marca, servicio, precio, política y proveedor de calendario.",
-    "shared":"Turnero, estados, voucher, pago, confirmación, recordatorio, reprogramación y trazabilidad."
+  "sharedArchitecture": {
+    "appliesTo": "Todas las cuentas con agenda",
+    "brandSpecific": "Cada cuenta conserva su marca, servicio, precio, política y proveedor de calendario.",
+    "shared": "Turnero, estados, voucher, pago, confirmación, recordatorio, reprogramación y trazabilidad."
+  },
+  "crm": {
+    "contactRecord": true,
+    "bookingRecord": true,
+    "diagnosticLink": true,
+    "proposalLink": true,
+    "sourceTracking": true,
+    "metrics": [
+      "reservas",
+      "confirmadas",
+      "pagadas",
+      "bonificadas",
+      "reprogramaciones",
+      "cancelaciones",
+      "no_show",
+      "conversión diagnóstico→reserva",
+      "conversión reserva→servicio"
+    ]
   }
 }
