@@ -1,0 +1,39 @@
+{
+  "version":"2026-10-08-v1",
+  "defaultRule":"La reserva de una asesoría implica un servicio arancelado, salvo que se aplique un cupón o voucher válido.",
+  "currency":"ARS",
+  "voucher":{
+    "fieldDefault":"",
+    "placeholder":"",
+    "serverValidationRequired":true,
+    "singleUseRecommended":true,
+    "expiryRecommended":true,
+    "zeroBalanceCanConfirm":true
+  },
+  "attendance":{
+    "requiredConfirmation":true,
+    "text":"Me comprometo a asistir al encuentro en la fecha y horario elegidos. Si necesito reprogramar, lo haré con la anticipación indicada por Sinergia.",
+    "noShowPolicy":"Debe definirse por servicio antes de publicar la condición comercial."
+  },
+  "booking":{
+    "statusFlow":["draft","pending_payment","confirmed","reschedule_requested","completed","cancelled","no_show"],
+    "calendarInvite":true,
+    "emailConfirmation":true,
+    "reminderHours":[24],
+    "timezone":"America/Argentina/Cordoba",
+    "preventDoubleBooking":true,
+    "bufferMinutes":15
+  },
+  "payment":{
+    "requiredBeforeConfirmation":true,
+    "freeVoucherBypass":true,
+    "checkout":"shared",
+    "recommendedProvider":"Mercado Pago",
+    "receiptAndInvoice":"Definir según titularidad y régimen fiscal antes de comercializar."
+  },
+  "sharedArchitecture":{
+    "appliesTo":"Todas las cuentas con agenda",
+    "brandSpecific":"Cada cuenta conserva su marca, servicio, precio, política y proveedor de calendario.",
+    "shared":"Turnero, estados, voucher, pago, confirmación, recordatorio, reprogramación y trazabilidad."
+  }
+}
