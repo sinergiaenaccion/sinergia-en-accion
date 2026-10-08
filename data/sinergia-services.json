@@ -1,0 +1,113 @@
+{
+  "version": "2026-10-07-v1",
+  "currency": "ARS",
+  "marketReference": {
+    "hourlyLow": 60000,
+    "hourlyHigh": 150000,
+    "note": "Rango orientativo externo consultado; no es un arancel obligatorio."
+  },
+  "internalBaseHour": 90000,
+  "updateRule": "Los valores se revisan por versión de catálogo y por variaciones de alcance/costo. No se recalculan automáticamente por inflación sin revisión humana.",
+  "services": [
+    {
+      "id": "asesoria60",
+      "name": "Asesoría estratégica · 60 min",
+      "unit": "sesión",
+      "base": 90000,
+      "description": "Una sesión enfocada en una decisión o problema concreto."
+    },
+    {
+      "id": "asesoria90",
+      "name": "Asesoría estratégica · 90 min",
+      "unit": "sesión",
+      "base": 125000,
+      "description": "Sesión ampliada para analizar contexto, alternativas y próximos pasos."
+    },
+    {
+      "id": "pack3",
+      "name": "Pack de 3 asesorías · 60 min",
+      "unit": "pack",
+      "base": 255000,
+      "description": "Tres encuentros para trabajar una línea de acción con continuidad."
+    },
+    {
+      "id": "pack5",
+      "name": "Pack de 5 asesorías · 60 min",
+      "unit": "pack",
+      "base": 400000,
+      "description": "Acompañamiento breve con seguimiento y ajustes."
+    },
+    {
+      "id": "diagnosticoProfundo",
+      "name": "Diagnóstico estratégico profundo",
+      "unit": "proyecto",
+      "base": 360000,
+      "description": "Profundización, análisis, mapa de oportunidades y priorización."
+    },
+    {
+      "id": "roadmap",
+      "name": "Roadmap de transformación",
+      "unit": "proyecto",
+      "base": 480000,
+      "description": "Diagnóstico + prioridades + hoja de ruta de implementación."
+    },
+    {
+      "id": "sprint6",
+      "name": "Sprint de implementación · hasta 6 h",
+      "unit": "sprint",
+      "base": 540000,
+      "description": "Trabajo concentrado para poner en marcha una solución priorizada."
+    },
+    {
+      "id": "workshop",
+      "name": "Taller in-company",
+      "unit": "taller",
+      "base": 280000,
+      "description": "Taller grupal. El valor puede variar por cantidad de participantes, duración y modalidad."
+    }
+  ],
+  "modifiers": {
+    "scope": {
+      "standard": 1,
+      "plus": 1.2,
+      "custom": 1.45
+    },
+    "modality": {
+      "virtual": 1,
+      "presential": 1.12
+    },
+    "urgency": {
+      "standard": 1,
+      "urgent": 1.15
+    }
+  },
+  "notes": [
+    "Los valores mostrados son orientativos y deben ser revisados por Sinergia antes de enviarse como presupuesto definitivo.",
+    "Presencial puede incorporar viáticos/traslados cuando corresponda.",
+    "El alcance, entregables, cantidad de participantes y tiempos pueden modificar el valor.",
+    "Los combos deben tener un beneficio explícito sin devaluar la hora profesional."
+  ],
+  "availability": {
+    "timezone": "America/Argentina/Cordoba",
+    "weekdays": [
+      "lunes",
+      "martes",
+      "miércoles",
+      "jueves",
+      "viernes"
+    ],
+    "windows": [
+      [
+        "10:00",
+        "13:00"
+      ],
+      [
+        "16:00",
+        "20:00"
+      ]
+    ],
+    "defaultDurationMinutes": 60,
+    "bufferMinutes": 15,
+    "reminderHours": 24
+  }
+}
