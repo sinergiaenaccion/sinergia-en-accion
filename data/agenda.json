@@ -1,0 +1,16 @@
+{
+  "timezone":"America/Argentina/Cordoba",
+  "title":"Conversación de revisión con Sinergia",
+  "description":"Elegí modalidad y coordiná una conversación para revisar el diagnóstico y la propuesta.",
+  "availability":{
+    "weekdays":["lunes","martes","miércoles","jueves","viernes"],
+    "windows":[["10:00","13:00"],["16:00","20:00"]],
+    "durationMinutes":60,
+    "bufferMinutes":15,
+    "reminderHours":24
+  },
+  "bookingProvider":"cal.com",
+  "bookingUrl":"",
+  "status":"pending_connection",
+  "note":"La disponibilidad y el bloqueo de turnos se activarán al conectar el calendario real de Sinergia. No mostrar horarios ficticios como disponibles."
+}
