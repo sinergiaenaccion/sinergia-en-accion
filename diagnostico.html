@@ -210,7 +210,7 @@ function renderProposal(catalog){
 async function captureProposal(kind){
  const email=(document.getElementById("leadEmail")?.value||"").trim();
  const payload={source:"Propuesta Sinergia",type:state.type,answers:state.answers,email,service:document.getElementById("pService")?.value,scope:document.getElementById("pScope")?.value,modality:document.getElementById("pMod")?.value,urgency:document.getElementById("pUrg")?.value,kind,submittedAt:new Date().toISOString()};
- try{await fetch("/api/diagnostico",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});alert("Recibimos tu solicitud. Sinergia revisará el alcance con vos antes de confirmar el presupuesto.");}
+ try{await fetch("/api/diagnostico",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});alert("Recibimos tu solicitud. Ahora podés coordinar la conversación de revisión.");window.location.href="/agenda.html?email="+encodeURIComponent(email)+"&service="+encodeURIComponent(document.getElementById("pService")?.value||"");}
  catch{window.location.href="mailto:sinergiaenaccion.consultoria@gmail.com?subject="+encodeURIComponent("Revisión de propuesta Sinergia")+"&body="+encodeURIComponent(JSON.stringify(payload,null,2))}
 }
 </script></body>
