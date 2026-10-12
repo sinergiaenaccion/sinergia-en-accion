@@ -31,7 +31,7 @@ async function supabaseRpc(name, body) {
 module.exports = async (req, res) => {
   if (req.method !== "POST") return json(res, 405, { error: "Método no permitido." });
   if (!process.env.MP_ACCESS_TOKEN) return json(res, 503, { error: "Mercado Pago todavía no está configurado." });
-  if (!process.env.SINERGIA_SITE_URL || !process.env.SINERGIA_API_BASE_URL || !process.env.SINERGIA_PDF_URL_DELEGAR_AUTONOMIA || !process.env.SINERGIA_DOWNLOAD_SECRET || !process.env.MP_WEBHOOK_SECRET) {
+  if (!process.env.SINERGIA_SITE_URL || !process.env.SINERGIA_API_BASE_URL || !process.env.SINERGIA_PDF_URL_DELEGAR_AUTONOMIA || !process.env.SINERGIA_DOWNLOAD_SECRET) {
     return json(res, 503, { error: "El checkout está en preparación. Todavía falta configurar la entrega segura o las URLs de confirmación. No se realizó ningún cobro." });
   }
   try {
