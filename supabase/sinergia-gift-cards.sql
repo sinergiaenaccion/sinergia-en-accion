@@ -1,4 +1,5 @@
 -- Ejecutar una sola vez en el SQL Editor del proyecto Supabase conectado a Sinergia.
+create extension if not exists pgcrypto;
 -- Mantener las tablas y funciones privadas; nunca exponer la service role key en el navegador.
 create table if not exists public.sinergia_gift_cards (
   id bigint generated always as identity primary key,
