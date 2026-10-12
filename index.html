@@ -589,8 +589,6 @@ header .real-logo{
             <input id="sinergiaBuyerEmail" name="email" type="email" autocomplete="email" placeholder="tu@email.com" required>
             <label for="sinergiaCoupon">Cupón de descuento (opcional)</label>
             <input id="sinergiaCoupon" name="coupon" type="text" autocomplete="off" placeholder="Ingresá tu cupón">
-            <label for="sinergiaGiftCard">Gift card (opcional)</label>
-            <input id="sinergiaGiftCard" name="giftCard" type="text" autocomplete="off" placeholder="Código de gift card">
             <button class="workbook-price-cta" id="sinergiaBuyButton" type="submit">Comprar con Mercado Pago →</button>
             <p class="checkout-feedback" id="sinergiaCheckoutFeedback" role="status" aria-live="polite"></p>
           </form>
@@ -847,8 +845,7 @@ document.addEventListener('DOMContentLoaded',()=>{
      const response=await fetch('/api/create-preference',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
        productId:'SIN-WB-001',
        email:document.getElementById('sinergiaBuyerEmail').value.trim(),
-       coupon:document.getElementById('sinergiaCoupon').value.trim(),
-       giftCard:document.getElementById('sinergiaGiftCard').value.trim()
+       coupon:document.getElementById('sinergiaCoupon').value.trim()
      })});
      const data=await response.json();
      if(!response.ok||!data.initPoint)throw new Error(data.error||'No pudimos iniciar el pago.');
