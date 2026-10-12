@@ -31,6 +31,9 @@ async function supabaseRpc(name, body) {
 module.exports = async (req, res) => {
   if (req.method !== "POST") return json(res, 405, { error: "Método no permitido." });
   if (!process.env.MP_ACCESS_TOKEN) return json(res, 503, { error: "Mercado Pago todavía no está configurado." });
+  if (!process.env.SINERGIA_SITE_URL || !process.env.SINERGIA_API_BASE_URL || !process.env.SINERGIA_PDF_URL_DELEGAR_AUTONOMIA || !process.env.SINERGIA_DOWNLOAD_SECRET || !process.env.MP_WEBHOOK_SECRET) {
+    return json(res, 503, { error: "El checkout está en preparación. Todavía falta configurar la entrega segura o las URLs de confirmación. No se realizó ningún cobro." });
+  }
   try {
     const productId = String(req.body?.productId || "SIN-WB-001");
     const product = PRODUCTS[productId];
@@ -55,8 +58,8 @@ module.exports = async (req, res) => {
       if (giftCode) await supabaseRpc("release_sinergia_gift_card_reservation", { p_order_id: orderId });
       return json(res, 400, { error: "El saldo de la gift card cubre el total. Escribinos por WhatsApp y verificaremos la compra para entregarte el archivo." });
     }
-    const siteUrl = (process.env.SINERGIA_SITE_URL || "https://sinergiaenaccion.com").replace(/\/$/, "");
-    const apiUrl = (process.env.SINERGIA_API_BASE_URL || siteUrl).replace(/\/$/, "");
+    const siteUrl = process.env.SINERGIA_SITE_URL.replace(/\/$/, "");
+    const apiUrl = process.env.SINERGIA_API_BASE_URL.replace(/\/$/, "");
     const items = [{ id: productId, title: product.name, description: "Workbook digital de Sinergia en Acción", quantity: 1, currency_id: "ARS", unit_price: total }];
     const preference = {
       items, external_reference: orderId,
