@@ -26,7 +26,14 @@ module.exports = async (req, res) => {
     const r = await fetch("https://api.mercadopago.com/v1/payments/" + encodeURIComponent(paymentId), { headers: { Authorization: "Bearer " + process.env.MP_ACCESS_TOKEN } });
     if (!r.ok) return json(res, 200, { received: true });
     const payment = await r.json(), orderId = String(payment.external_reference || payment.order?.external_reference || payment.order?.external_reference_id || "");
-    const giftCode = String(payment.metadata?.gift_card_code || "");
+    let giftCode = String(payment.metadata?.gift_card_code || "");
+    if (!giftCode && payment.preference_id) {
+      const preferenceResponse = await fetch("https://api.mercadopago.com/checkout/preferences/" + encodeURIComponent(payment.preference_id), { headers: { Authorization: "Bearer " + process.env.MP_ACCESS_TOKEN } });
+      if (preferenceResponse.ok) {
+        const preference = await preferenceResponse.json();
+        giftCode = String(preference.metadata?.gift_card_code || "");
+      }
+    }
     if (giftCode && orderId && ["rejected", "cancelled", "refunded", "charged_back"].includes(String(payment.status))) {
       await giftRpc("release_sinergia_gift_card_reservation", { p_order_id: orderId });
     }
