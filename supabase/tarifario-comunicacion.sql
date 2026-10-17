@@ -50,7 +50,7 @@ create policy "equipo lee tarifario"
 -- 3) Usuarios autorizados. Reemplazar por el mail real que usará el equipo
 --    (el mismo que se crea en Authentication > Users con su contraseña).
 insert into public.equipo_panel_usuarios (email)
-values ('REEMPLAZAR-por-el-mail-del-equipo@ejemplo.com')
+values ('sinergiaenaccion.consultoria@gmail.com')
 on conflict (email) do nothing;
 
 -- 4) Carga del tarifario (valores en ARS, base octubre 2026).
