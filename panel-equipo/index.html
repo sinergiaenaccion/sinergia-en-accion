@@ -9,17 +9,20 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <style>
-:root{--i:#073e4b;--d:#063743;--y:#ffc83e;--t:#26aaa7;--bg:#f3f8f6;--line:#dfe8e5;--muted:#5d7178;--white:#fff}
+:root{--i:#073e4b;--d:#063743;--y:#ffc83e;--t:#26aaa7;--line:#dfe8e5;--muted:#5d7178}
 *{box-sizing:border-box}
 body{margin:0;background:linear-gradient(135deg,#edf7f5 0%,#f8fbfa 55%,#e8f3f1 100%);color:var(--i);font:15px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;min-height:100vh}
-header{padding:14px 5vw;background:linear-gradient(110deg,#063743,#0b5662);color:#fff;display:flex;justify-content:space-between;align-items:center;gap:12px;box-shadow:0 8px 28px #073e4b20;position:sticky;top:0;z-index:5}
+header{padding:14px 5vw;background:linear-gradient(110deg,#063743,#0b5662);color:#fff;display:flex;justify-content:space-between;align-items:center;gap:12px;box-shadow:0 8px 28px #073e4b20;position:sticky;top:0;z-index:5;flex-wrap:wrap}
 .brand{display:flex;align-items:center;gap:12px}
 .brand img{width:52px;height:52px;object-fit:contain;background:#fff;border-radius:12px;padding:3px}
 .brand-title{font:500 24px Georgia,serif}
 .brand-sub{display:block;font:700 9px system-ui;letter-spacing:.22em;opacity:.8;margin-top:2px}
 .top-actions{display:flex;align-items:center;gap:10px;font-size:12px}
-.pill-btn{background:transparent;border:1px solid #ffffff66;color:#fff;padding:7px 12px;border-radius:999px;text-decoration:none;font-weight:800;cursor:pointer;font:inherit;font-size:12px}
+.pill-btn{background:transparent;border:1px solid #ffffff66;color:#fff;padding:7px 12px;border-radius:999px;cursor:pointer;font:800 12px system-ui}
 .pill-btn:hover{background:#ffffff14}
+.tabs{display:flex;gap:6px;background:#ffffff14;padding:4px;border-radius:999px}
+.tabs button{background:none;border:0;color:#fff;padding:8px 14px;border-radius:999px;cursor:pointer;font:800 13px system-ui;opacity:.8}
+.tabs button.on{background:var(--y);color:var(--i);opacity:1}
 main{max-width:1280px;margin:0 auto;padding:32px 5vw 60px}
 .box{background:rgba(255,255,255,.97);border-radius:24px;padding:26px;box-shadow:0 20px 60px #073e4b15;border:1px solid #073e4b12}
 .login{max-width:460px;margin:8vh auto;padding:36px}
@@ -33,20 +36,18 @@ input:focus,select:focus{outline:2px solid var(--t);outline-offset:1px}
 label.field{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:12px}
 label.field input{margin-top:5px}
 .btn{border:0;border-radius:999px;padding:12px 20px;background:var(--y);color:var(--i);font:800 14px system-ui;cursor:pointer}
-.btn:hover{filter:brightness(.97)}
 .btn.ghost{background:#e7f3ef}
 .btn[disabled]{opacity:.5;cursor:not-allowed}
+.btn.small{padding:7px 12px;font-size:12px}
 .msg{min-height:22px;font-weight:700;margin-top:10px}
 .msg.err{color:#a33}
 .msg.ok{color:#17766f}
 .layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:22px;align-items:start}
-.card-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0 16px}
-.card-form h2{grid-column:1/-1}
-.tar-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin:6px 0 12px}
+.card-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0 16px;margin-top:14px}
 .etapa{margin-top:18px}
 .etapa>h3{display:flex;align-items:center;gap:10px;color:var(--d);padding:8px 0;border-bottom:2px solid var(--y)}
 .etapa>h3 span{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--d);color:#fff;font-size:12px}
-.row{display:grid;grid-template-columns:minmax(0,1fr) 110px 104px 150px 78px 110px;gap:10px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line);border-radius:12px;transition:background .15s}
+.row{display:grid;grid-template-columns:minmax(0,1fr) 110px 104px 150px 78px 110px;gap:10px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line);border-radius:12px}
 .row.on{background:#eef8f5}
 .sel{display:flex;gap:10px;align-items:flex-start;cursor:pointer;min-width:0}
 .sel input{width:18px;height:18px;margin-top:3px;flex:none;accent-color:var(--t)}
@@ -59,22 +60,31 @@ label.field input{margin-top:5px}
 .row select{padding:8px 9px;font-size:13px}
 .row input[type=number]{padding:8px 9px;font-size:13px;text-align:center}
 .total{text-align:right;font-weight:800;white-space:nowrap}
-.summary{position:sticky;top:90px;background:var(--d);color:#fff;border-radius:24px;padding:24px;box-shadow:0 20px 50px #06374326}
+.summary{position:sticky;top:110px;background:var(--d);color:#fff;border-radius:24px;padding:24px;box-shadow:0 20px 50px #06374326}
 .summary h2{color:#fff}
 .sline{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid #ffffff20;font-size:14px}
 .sline.big{border:0;font-size:20px;font-weight:800;padding-top:14px;color:var(--y)}
 .sline.neg span:last-child{color:#ffd9cf}
 .summary .btn{width:100%;margin-top:18px}
 .summary .hint{font-size:12px;opacity:.75;margin-top:12px;line-height:1.4}
-.note{background:#fff4c9;border-radius:14px;padding:12px 14px;font-size:13px;margin:12px 0 0}
-.client-note{font-size:12px;color:var(--muted);margin-top:4px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0}
+.card{background:#f1f6f4;border-radius:18px;padding:16px}
+.card b{display:block;font:500 26px Georgia,serif;margin-top:4px}
+.filters{display:grid;grid-template-columns:200px 1fr auto;gap:12px;align-items:center;margin-top:12px}
+.table{overflow:auto;margin-top:14px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:11px 9px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+th{font:800 10px system-ui;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+td.num,th.num{text-align:right;white-space:nowrap}
+.pill{background:#e7f3ef;border-radius:999px;padding:4px 9px;font-weight:800;font-size:12px;white-space:nowrap}
+.hidden{display:none!important}
 @media(max-width:1000px){
  .layout{grid-template-columns:1fr}
  .summary{position:static}
  .row{grid-template-columns:1fr 1fr;gap:8px}
  .row .sel{grid-column:1/-1}
  .row .precio{text-align:left}
- .row .total{text-align:left;grid-column:auto}
+ .row .total{text-align:left}
 }
 @media(max-width:600px){
  main{padding:20px 4vw 48px}
@@ -83,6 +93,8 @@ label.field input{margin-top:5px}
  .brand-title{font-size:20px}
  h1{font-size:26px}
  .login{padding:26px;margin-top:4vh}
+ .cards{grid-template-columns:1fr}
+ .filters{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -92,9 +104,13 @@ label.field input{margin-top:5px}
     <img src="logo-sinergia.png" alt="Sinergia en Acción">
     <div><div class="brand-title">Panel Equipo</div><span class="brand-sub">PRESUPUESTOS · COMUNICACIÓN Y MARKETING</span></div>
   </div>
-  <div class="top-actions">
+  <div class="top-actions" id="topActions" hidden>
+    <div class="tabs">
+      <button id="tabNuevo" class="on">Nuevo presupuesto</button>
+      <button id="tabHistorial">Historial</button>
+    </div>
     <span id="who" class="muted" style="color:#ffffffcc"></span>
-    <button class="pill-btn" id="logout" hidden>Salir</button>
+    <button class="pill-btn" id="logout">Salir</button>
   </div>
 </header>
 
@@ -103,62 +119,81 @@ label.field input{margin-top:5px}
   <section class="box login" id="login" hidden>
     <div class="eyebrow">Acceso privado</div>
     <h1>Ingresar</h1>
-    <p class="muted">Usá el mail y la contraseña que te compartió Fabi.</p>
+    <p class="muted">Usá el mail y la contraseña del equipo.</p>
     <label class="field">Email<input id="email" type="email" autocomplete="username"></label>
     <label class="field">Contraseña<input id="password" type="password" autocomplete="current-password"></label>
     <button class="btn" id="go" style="width:100%">Ingresar</button>
     <div class="msg err" id="loginErr"></div>
   </section>
 
-  <!-- Aplicación -->
-  <section id="app" hidden>
+  <!-- Nuevo presupuesto -->
+  <section id="vNuevo" hidden>
     <div class="layout">
       <div>
         <div class="box">
-          <div class="eyebrow">Nuevo presupuesto</div>
-          <h2>Datos del cliente</h2>
-          <div class="card-form" style="margin-top:14px">
+          <div class="eyebrow">Datos del presupuesto</div>
+          <h2>Cliente y marca</h2>
+          <div class="card-form">
+            <label class="field">Marca<input id="marca" list="marcas" autocomplete="off" placeholder="Ej.: Entre Huellas"></label>
             <label class="field">Nombre y apellido / responsable<input id="cliente" type="text" autocomplete="off"></label>
-            <label class="field">Marca o empresa<input id="marca" type="text" autocomplete="off"></label>
             <label class="field">Email<input id="mail" type="email" autocomplete="off"></label>
             <label class="field">Teléfono<input id="telefono" type="tel" autocomplete="off"></label>
             <label class="field">Cantidad de cuentas<input id="cuentas" type="number" min="1" step="1" value="1">
-              <span class="client-note">Al cambiarla se actualiza la cantidad de los ítems incluidos.</span></label>
+              <span class="muted" style="font-size:12px;font-weight:600">Al cambiarla se actualiza la cantidad de los ítems.</span></label>
           </div>
+          <datalist id="marcas"></datalist>
         </div>
 
         <div class="box" style="margin-top:22px">
-          <div class="tar-head">
-            <div>
-              <div class="eyebrow">Tarifario</div>
-              <h2>Elegí los servicios</h2>
-              <div class="muted" style="font-size:13px">Marcá <b>Incluir</b> para sumar al presupuesto. <b>Bonificar</b> aplica el 100%; el descuento parcial va de 10 a 50%.</div>
-            </div>
-          </div>
+          <div class="eyebrow">Tarifario</div>
+          <h2>Elegí los servicios</h2>
+          <div class="muted" style="font-size:13px">Marcá <b>Incluir</b> para sumar al presupuesto. <b>Bonificar</b> aplica el 100%; el descuento parcial va de 10 a 50%.</div>
           <div id="tarifario"></div>
-          <div class="msg err" id="appErr"></div>
         </div>
       </div>
 
-      <aside class="summary" id="summary">
+      <aside class="summary">
         <h2>Resumen</h2>
         <div class="sline"><span>Servicios incluidos</span><span id="sCount">0</span></div>
         <div class="sline"><span>Valor de lista</span><span id="sLista">$ 0</span></div>
         <div class="sline neg"><span>Bonificaciones y descuentos</span><span id="sDesc">- $ 0</span></div>
         <div class="sline big"><span>Total</span><span id="sTotal">$ 0</span></div>
-        <div class="hint">Validez del presupuesto: <span id="sVence">15 días</span> desde la emisión.</div>
-        <button class="btn" id="pdf" disabled>Descargar PDF</button>
-        <div class="hint">El PDF incluye logo, datos del cliente, detalle, bonificaciones y condiciones.</div>
+        <div class="hint">Validez: <span id="sVence"></span> desde la emisión.</div>
+        <button class="btn" id="guardar" disabled>Guardar y descargar PDF</button>
+        <div class="hint">Se guarda en el historial con los precios de hoy y después se descarga el PDF.</div>
+        <div class="msg" id="appMsg" style="color:#ffd9cf"></div>
       </aside>
     </div>
+  </section>
+
+  <!-- Historial -->
+  <section id="vHistorial" class="box" hidden>
+    <div class="eyebrow">Historial</div>
+    <h2>Presupuestos guardados</h2>
+    <div class="cards">
+      <div class="card">Presupuestos<b id="hCount">0</b></div>
+      <div class="card">Total acumulado<b id="hTotal">$ 0</b></div>
+      <div class="card">Marcas<b id="hMarcas">0</b></div>
+    </div>
+    <div class="filters">
+      <select id="fMarca"><option value="">Todas las marcas</option></select>
+      <input id="fTexto" type="search" placeholder="Buscar por cliente o email">
+      <button class="btn ghost small" id="fRefresh">Actualizar</button>
+    </div>
+    <div class="table"><table>
+      <thead><tr><th>Fecha</th><th>Marca</th><th>Cliente</th><th class="num">Cuentas</th><th class="num">Ítems</th><th class="num">Total</th><th></th></tr></thead>
+      <tbody id="hRows"></tbody>
+    </table></div>
+    <div class="msg" id="hMsg"></div>
   </section>
 </main>
 
 <script>
 const FN="https://ccxoadcldblgsuaywfwk.supabase.co/functions/v1",CONFIG_URL=FN+"/sinergia-panel-config";
-const VALIDEZ_DIAS=15;
+const VALIDEZ_DIAS=15, VERSION_TARIFARIO="2026-10";
 const CONTACTO="+54 9 351 606-3053 · sinergiaenaccion.consultoria@gmail.com";
 const DESCUENTOS=[0,10,20,30,50];
+const MARCAS_BASE=["Sinergia en Acción","Entre Huellas","Shui"];
 const CONDICIONES=[
  "Valores en pesos argentinos (ARS), orientativos con base octubre de 2026.",
  "Los servicios marcados como \"Desde\" requieren brief y presupuesto específico según alcance y cantidad de entregables.",
@@ -169,16 +204,17 @@ const CONDICIONES=[
  "Forma de pago, anticipo y vencimiento se confirman al aceptar el presupuesto."
 ];
 
-let sb=null, items=[], byId=new Map(), estado=new Map();
+let sb=null, items=[], byId=new Map(), estado=new Map(), historial=[];
 const $=id=>document.getElementById(id);
 const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
-const money=n=>"$ "+Math.round(n).toLocaleString("es-AR");
+const money=n=>"$ "+Math.round(Number(n)||0).toLocaleString("es-AR");
 const moneyNeg=n=>"- "+money(n);
-const fecha=d=>d.toLocaleDateString("es-AR");
-const slug=s=>String(s||"cliente").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-zA-Z0-9]+/g,"-").replace(/^-|-$/g,"")||"cliente";
+const fecha=d=>new Date(d).toLocaleDateString("es-AR");
+const slug=s=>String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-zA-Z0-9]+/g,"-").replace(/^-|-$/g,"")||"sin-nombre";
 
 function setLoginErr(t){$("loginErr").textContent=t}
-function setAppErr(t){$("appErr").textContent=t}
+function setAppMsg(t,ok){$("appMsg").textContent=t;$("appMsg").style.color=ok?"#bff0e9":"#ffd9cf"}
+function setHMsg(t,err){$("hMsg").textContent=t;$("hMsg").className="msg "+(err?"err":"ok")}
 
 async function init(){
   try{
@@ -221,22 +257,33 @@ async function mostrar(){
   byId=new Map(items.map(it=>[it.id,it]));
   estado=new Map(items.map(it=>[it.id,{incluir:false,bonificar:false,descuento:0,cantidad:Number($("cuentas").value)||1}]));
   $("login").hidden=true;
-  $("app").hidden=false;
-  $("logout").hidden=false;
+  $("topActions").hidden=false;
   const u=(await sb.auth.getUser()).data.user;
   $("who").textContent=u?u.email:"";
   render();
+  mostrarVista("nuevo");
 }
 
 async function logout(){
   await sb.auth.signOut();
-  items=[];byId=new Map();estado=new Map();
-  $("app").hidden=true;$("logout").hidden=true;$("who").textContent="";
-  $("tarifario").innerHTML="";
+  items=[];byId=new Map();estado=new Map();historial=[];
+  $("topActions").hidden=true;
+  $("vNuevo").hidden=true;$("vHistorial").hidden=true;
+  $("tarifario").innerHTML="";$("hRows").innerHTML="";
   $("password").value="";
   $("login").hidden=false;
 }
 
+function mostrarVista(v){
+  const nuevo=v==="nuevo";
+  $("vNuevo").hidden=!nuevo;
+  $("vHistorial").hidden=nuevo;
+  $("tabNuevo").classList.toggle("on",nuevo);
+  $("tabHistorial").classList.toggle("on",!nuevo);
+  if(!nuevo) cargarHistorial();
+}
+
+/* ---------- Tarifario ---------- */
 function rowHTML(it){
   const s=estado.get(it.id);
   return `<div class="row${s.incluir?" on":""}" data-id="${esc(it.id)}">
@@ -263,6 +310,8 @@ function render(){
     const g=grupos.get(n);
     return `<div class="etapa"><h3><span>${n}</span>${esc(g.nombre)}</h3>${g.items.map(rowHTML).join("")}</div>`;
   }).join("");
+  $("marcas").innerHTML=MARCAS_BASE.map(m=>`<option value="${esc(m)}">`).join("");
+  $("sVence").textContent=VALIDEZ_DIAS+" días";
   recalc();
 }
 
@@ -274,31 +323,24 @@ function calc(it){
   return {lista,pct,desc,total:lista-desc};
 }
 
-function totales(){
+function recalc(){
+  document.querySelectorAll("#tarifario .row").forEach(row=>{
+    const it=byId.get(row.dataset.id);
+    const s=estado.get(it.id);
+    row.classList.toggle("on",s.incluir);
+    row.querySelector("[data-total]").textContent=s.incluir?money(calc(it).total):"-";
+  });
   let n=0,lista=0,desc=0,total=0;
   items.forEach(it=>{
     if(!estado.get(it.id).incluir) return;
     const c=calc(it);
     n++;lista+=c.lista;desc+=c.desc;total+=c.total;
   });
-  return {n,lista,desc,total};
-}
-
-function recalc(){
-  document.querySelectorAll("#tarifario .row").forEach(row=>{
-    const it=byId.get(row.dataset.id);
-    const s=estado.get(it.id);
-    row.classList.toggle("on",s.incluir);
-    const c=calc(it);
-    row.querySelector("[data-total]").textContent=s.incluir?money(c.total):"-";
-  });
-  const t=totales();
-  $("sCount").textContent=t.n;
-  $("sLista").textContent=money(t.lista);
-  $("sDesc").textContent=moneyNeg(t.desc);
-  $("sTotal").textContent=money(t.total);
-  $("sVence").textContent=VALIDEZ_DIAS+" días";
-  $("pdf").disabled=t.n===0;
+  $("sCount").textContent=n;
+  $("sLista").textContent=money(lista);
+  $("sDesc").textContent=moneyNeg(desc);
+  $("sTotal").textContent=money(total);
+  $("guardar").disabled=n===0;
 }
 
 function onTarifarioChange(e){
@@ -325,6 +367,51 @@ function aplicarCuentas(){
   recalc();
 }
 
+/* ---------- Presupuesto ---------- */
+function construirPresupuesto(){
+  const marca=$("marca").value.trim();
+  const cliente=$("cliente").value.trim();
+  if(!marca){ setAppMsg("Indicá la marca del presupuesto."); $("marca").focus(); return null; }
+  if(!cliente){ setAppMsg("Completá el nombre del cliente."); $("cliente").focus(); return null; }
+  const seleccionados=items.filter(it=>estado.get(it.id).incluir);
+  if(!seleccionados.length){ setAppMsg("Marcá al menos un servicio para incluir."); return null; }
+  const emitido=new Date();
+  const vence=new Date(emitido.getTime()+VALIDEZ_DIAS*24*60*60*1000);
+  let lista=0,desc=0,total=0;
+  const lineas=seleccionados.map(it=>{
+    const s=estado.get(it.id), c=calc(it);
+    lista+=c.lista;desc+=c.desc;total+=c.total;
+    return {id:it.id,etapa:it.etapa,etapa_nombre:it.etapa_nombre,servicio:it.servicio,alcance:it.alcance,
+      desde:!!it.desde,precio:it.precio,cantidad:s.cantidad,pct:c.pct,lista:c.lista,desc:c.desc,total:c.total};
+  });
+  return {
+    marca,cliente,
+    email:$("mail").value.trim(),
+    telefono:$("telefono").value.trim(),
+    cuentas:Math.max(1,Math.floor(Number($("cuentas").value))||1),
+    emitido:emitido.toISOString(),vence:vence.toISOString(),
+    version:VERSION_TARIFARIO,
+    lista,descuento:desc,total,lineas
+  };
+}
+
+async function guardarYDescargar(){
+  setAppMsg("");
+  const p=construirPresupuesto();
+  if(!p) return;
+  $("guardar").disabled=true;
+  const {error}=await sb.from("presupuestos").insert({
+    marca:p.marca,cliente:p.cliente,email:p.email||null,telefono:p.telefono||null,cuentas:p.cuentas,
+    lista:p.lista,descuento:p.descuento,total:p.total,emitido_at:p.emitido,vence_at:p.vence,
+    tarifario_version:p.version,lineas:p.lineas
+  });
+  $("guardar").disabled=false;
+  if(error){ setAppMsg("No se pudo guardar en el historial. El PDF no se descargó; probá de nuevo."); return; }
+  setAppMsg("Guardado en el historial.",true);
+  recalc();
+  await descargarPDF(p);
+}
+
 function dataUrl(src){
   return new Promise((resolve,reject)=>{
     const im=new Image();
@@ -339,19 +426,11 @@ function dataUrl(src){
   });
 }
 
-async function generarPDF(){
-  setAppErr("");
-  const cliente=$("cliente").value.trim();
-  if(!cliente){ setAppErr("Completá el nombre del cliente antes de descargar el PDF."); $("cliente").focus(); return; }
-  const seleccionados=items.filter(it=>estado.get(it.id).incluir);
-  if(!seleccionados.length){ setAppErr("Marcá al menos un servicio para incluir."); return; }
-
+async function descargarPDF(p){
   const {jsPDF}=window.jspdf;
   const doc=new jsPDF({unit:"mm",format:"a4"});
   const W=210,M=14,AZUL=[7,62,75],SUAVE=[243,248,246];
-  const hoy=new Date();
-  const vence=new Date(hoy.getTime()+VALIDEZ_DIAS*24*60*60*1000);
-  const cuentas=Math.max(1,Math.floor(Number($("cuentas").value))||1);
+  const emitido=new Date(p.emitido),vence=new Date(p.vence);
 
   try{ doc.addImage(await dataUrl("logo-sinergia.png"),"PNG",M,10,30,30); }catch(e){}
 
@@ -360,14 +439,14 @@ async function generarPDF(){
   doc.text("Presupuesto",W-M,22,{align:"right"});
   doc.setFont("helvetica","normal");doc.setFontSize(9);doc.setTextColor(70);
   doc.text("Sinergia en Acción · Comunicación y marketing digital",W-M,29,{align:"right"});
-  doc.text("Fecha de emisión: "+fecha(hoy),W-M,35,{align:"right"});
+  doc.text("Fecha de emisión: "+fecha(emitido),W-M,35,{align:"right"});
   doc.text("Válido hasta: "+fecha(vence)+" ("+VALIDEZ_DIAS+" días)",W-M,40,{align:"right"});
 
   doc.setFillColor(...SUAVE);
   doc.roundedRect(M,46,W-2*M,26,3,3,"F");
   doc.setTextColor(...AZUL);doc.setFontSize(9);
-  const col1=[["Cliente",cliente],["Marca / empresa",$("marca").value.trim()||"-"],["Email",$("mail").value.trim()||"-"],["Teléfono",$("telefono").value.trim()||"-"]];
-  const col2=[["Cantidad de cuentas",String(cuentas)],["Moneda","Pesos argentinos (ARS)"]];
+  const col1=[["Cliente",p.cliente],["Marca",p.marca],["Email",p.email||"-"],["Teléfono",p.telefono||"-"]];
+  const col2=[["Cantidad de cuentas",String(p.cuentas)],["Moneda","Pesos argentinos (ARS)"]];
   col1.forEach(([k,v],i)=>{
     doc.setFont("helvetica","bold");doc.text(k,M+4,53+i*5.2);
     doc.setFont("helvetica","normal");doc.text(String(v),M+38,53+i*5.2);
@@ -379,24 +458,20 @@ async function generarPDF(){
 
   const body=[];
   let etapaActual=null;
-  let totLista=0,totDesc=0,totFinal=0;
-  seleccionados.forEach(it=>{
-    if(it.etapa!==etapaActual){
-      etapaActual=it.etapa;
-      body.push([{content:it.etapa_nombre,colSpan:5,styles:{fillColor:[227,243,239],fontStyle:"bold",textColor:AZUL}}]);
+  p.lineas.forEach(l=>{
+    if(l.etapa!==etapaActual){
+      etapaActual=l.etapa;
+      body.push([{content:l.etapa_nombre,colSpan:5,styles:{fillColor:[227,243,239],fontStyle:"bold",textColor:AZUL}}]);
     }
-    const s=estado.get(it.id);
-    const c=calc(it);
-    totLista+=c.lista;totDesc+=c.desc;totFinal+=c.total;
     let descTxt="Sin descuento";
-    if(c.pct===100) descTxt="Bonificado 100%";
-    else if(c.pct>0) descTxt=c.pct+"% (" + moneyNeg(c.desc) + ")";
+    if(l.pct===100) descTxt="Bonificado 100%";
+    else if(l.pct>0) descTxt=l.pct+"% ("+moneyNeg(l.desc)+")";
     body.push([
-      {content:it.servicio+(it.alcance?"\n"+it.alcance:""),styles:{fontStyle:"normal"}},
-      String(s.cantidad),
-      (it.desde?"Desde ":"")+money(c.lista),
+      {content:l.servicio+(l.alcance?"\n"+l.alcance:"")},
+      String(l.cantidad),
+      (l.desde?"Desde ":"")+money(l.lista),
       descTxt,
-      money(c.total)
+      money(l.total)
     ]);
   });
 
@@ -421,11 +496,11 @@ async function generarPDF(){
   if(y>235){ doc.addPage(); y=20; }
   const xL=118,xR=W-M;
   doc.setFontSize(10);doc.setTextColor(...AZUL);
-  doc.setFont("helvetica","normal");doc.text("Valor de lista",xL,y);doc.text(money(totLista),xR,y,{align:"right"});
-  doc.text("Bonificaciones y descuentos",xL,y+6);doc.text(moneyNeg(totDesc),xR,y+6,{align:"right"});
+  doc.setFont("helvetica","normal");doc.text("Valor de lista",xL,y);doc.text(money(p.lista),xR,y,{align:"right"});
+  doc.text("Bonificaciones y descuentos",xL,y+6);doc.text(moneyNeg(p.descuento),xR,y+6,{align:"right"});
   doc.setDrawColor(...AZUL);doc.setLineWidth(.4);doc.line(xL,y+9,xR,y+9);
   doc.setFont("helvetica","bold");doc.setFontSize(13);
-  doc.text("Total del presupuesto",xL,y+16);doc.text(money(totFinal),xR,y+16,{align:"right"});
+  doc.text("Total del presupuesto",xL,y+16);doc.text(money(p.total),xR,y+16,{align:"right"});
 
   y+=28;
   if(y>245){ doc.addPage(); y=20; }
@@ -441,24 +516,78 @@ async function generarPDF(){
   });
 
   const paginas=doc.internal.getNumberOfPages();
-  for(let p=1;p<=paginas;p++){
-    doc.setPage(p);
+  for(let pg=1;pg<=paginas;pg++){
+    doc.setPage(pg);
     doc.setFontSize(8);doc.setTextColor(120);
     doc.text("Sinergia en Acción · Consultas: "+CONTACTO,M,289);
-    doc.text(p+" / "+paginas,W-M,289,{align:"right"});
+    doc.text(pg+" / "+paginas,W-M,289,{align:"right"});
   }
 
-  const nombre="Presupuesto-"+slug(cliente)+"-"+hoy.toISOString().slice(0,10)+".pdf";
-  doc.save(nombre);
+  doc.save("Presupuesto-"+slug(p.marca)+"-"+slug(p.cliente)+"-"+emitido.toISOString().slice(0,10)+".pdf");
 }
 
+/* ---------- Historial ---------- */
+async function cargarHistorial(){
+  setHMsg("Cargando historial...");
+  const {data,error}=await sb.from("presupuestos").select("*").order("creado_at",{ascending:false}).limit(1000);
+  if(error){ setHMsg("No se pudo cargar el historial.",true); return; }
+  historial=data||[];
+  const marcas=[...new Set([...MARCAS_BASE,...historial.map(r=>r.marca)])].sort();
+  const actual=$("fMarca").value;
+  $("fMarca").innerHTML='<option value="">Todas las marcas</option>'+marcas.map(m=>`<option value="${esc(m)}">${esc(m)}</option>`).join("");
+  $("fMarca").value=actual;
+  $("marcas").innerHTML=marcas.map(m=>`<option value="${esc(m)}">`).join("");
+  setHMsg("");
+  renderHistorial();
+}
+
+function renderHistorial(){
+  const marca=$("fMarca").value;
+  const q=$("fTexto").value.trim().toLowerCase();
+  const filtrados=historial.filter(r=>
+    (!marca||r.marca===marca) &&
+    (!q||(r.cliente||"").toLowerCase().includes(q)||(r.email||"").toLowerCase().includes(q))
+  );
+  const total=filtrados.reduce((a,r)=>a+Number(r.total),0);
+  $("hCount").textContent=filtrados.length;
+  $("hTotal").textContent=money(total);
+  $("hMarcas").textContent=new Set(filtrados.map(r=>r.marca)).size;
+  $("hRows").innerHTML=filtrados.map(r=>`<tr>
+    <td>${fecha(r.creado_at)}</td>
+    <td><span class="pill">${esc(r.marca)}</span></td>
+    <td><b>${esc(r.cliente)}</b><br><span class="muted">${esc(r.email||"")}</span></td>
+    <td class="num">${esc(r.cuentas)}</td>
+    <td class="num">${(r.lineas||[]).length}</td>
+    <td class="num"><b>${money(r.total)}</b></td>
+    <td class="num"><button class="btn ghost small" data-pdf="${esc(r.id)}">PDF</button></td>
+  </tr>`).join("") || `<tr><td colspan="7" class="muted">No hay presupuestos para mostrar.</td></tr>`;
+}
+
+function presupuestoDesdeFila(r){
+  return {marca:r.marca,cliente:r.cliente,email:r.email||"",telefono:r.telefono||"",cuentas:r.cuentas,
+    emitido:r.emitido_at,vence:r.vence_at,version:r.tarifario_version,lineas:r.lineas||[],
+    lista:Number(r.lista),descuento:Number(r.descuento),total:Number(r.total)};
+}
+
+/* ---------- Eventos ---------- */
 $("go").onclick=login;
 $("password").onkeydown=e=>{if(e.key==="Enter")login()};
 $("logout").onclick=logout;
+$("tabNuevo").onclick=()=>mostrarVista("nuevo");
+$("tabHistorial").onclick=()=>mostrarVista("historial");
 $("cuentas").onchange=aplicarCuentas;
 $("tarifario").addEventListener("change",onTarifarioChange);
 $("tarifario").addEventListener("input",onTarifarioChange);
-$("pdf").onclick=generarPDF;
+$("guardar").onclick=guardarYDescargar;
+$("fMarca").onchange=renderHistorial;
+$("fTexto").oninput=renderHistorial;
+$("fRefresh").onclick=cargarHistorial;
+$("hRows").addEventListener("click",e=>{
+  const id=e.target.closest("[data-pdf]")?.dataset.pdf;
+  if(!id) return;
+  const r=historial.find(x=>x.id===id);
+  if(r) descargarPDF(presupuestoDesdeFila(r));
+});
 init();
 </script>
 </body>

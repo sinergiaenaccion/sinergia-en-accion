@@ -95,3 +95,35 @@ on conflict (id) do update set
   alcance = excluded.alcance,
   precio = excluded.precio,
   desde = excluded.desde;
+
+-- 5) Historial de presupuestos del equipo (todas las marcas en un mismo historial).
+--    Cada presupuesto guarda una copia de sus líneas y precios del momento,
+--    para comparar después aunque el tarifario cambie.
+create table if not exists public.presupuestos (
+  id uuid primary key default gen_random_uuid(),
+  creado_at timestamptz not null default now(),
+  creado_por text default (auth.jwt() ->> 'email'),
+  marca text not null,
+  cliente text not null,
+  email text,
+  telefono text,
+  cuentas integer not null default 1 check (cuentas >= 1),
+  lista numeric(14,2) not null,
+  descuento numeric(14,2) not null default 0,
+  total numeric(14,2) not null,
+  emitido_at timestamptz not null,
+  vence_at timestamptz not null,
+  tarifario_version text not null,
+  lineas jsonb not null
+);
+alter table public.presupuestos enable row level security;
+
+drop policy if exists "equipo lee presupuestos" on public.presupuestos;
+create policy "equipo lee presupuestos"
+  on public.presupuestos for select to authenticated
+  using (public.es_equipo_sinergia());
+
+drop policy if exists "equipo guarda presupuestos" on public.presupuestos;
+create policy "equipo guarda presupuestos"
+  on public.presupuestos for insert to authenticated
+  with check (public.es_equipo_sinergia());
