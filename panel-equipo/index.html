@@ -78,6 +78,8 @@ th,td{padding:11px 9px;border-bottom:1px solid var(--line);text-align:left;verti
 th{font:800 10px system-ui;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
 td.num,th.num{text-align:right;white-space:nowrap}
 .pill{background:#e7f3ef;border-radius:999px;padding:4px 9px;font-weight:800;font-size:12px;white-space:nowrap}
+.pill.borr{background:#fff1d6;color:#7a5200}
+.draft-bar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;background:#fff7e0;border:1px solid #f1d58a;border-radius:14px;padding:10px 14px;margin-top:14px;font-size:13px}
 .hidden{display:none!important}
 [hidden]{display:none!important}
 @media(max-width:1000px){
@@ -171,6 +173,8 @@ td.num,th.num{text-align:right;white-space:nowrap}
         <div class="box">
           <div class="eyebrow">Datos del presupuesto</div>
           <h2>Cliente y marca</h2>
+          <div class="draft-bar" id="draftBar" hidden><span id="draftTxt"></span></div>
+          <button class="btn ghost small" id="nuevoPresupuesto" type="button" style="margin-top:12px">Empezar un presupuesto en blanco</button>
           <div class="card-form">
             <label class="field">Marca<input id="marca" list="marcas" autocomplete="off" placeholder="Ej.: Entre Huellas"></label>
             <label class="field">Nombre y apellido / responsable<input id="cliente" type="text" autocomplete="off"></label>
@@ -198,8 +202,9 @@ td.num,th.num{text-align:right;white-space:nowrap}
         <div class="sline big"><span>Total</span><span id="sTotal">$ 0</span></div>
         <div class="hint">Validez: <span id="sVence"></span> desde la emisión.</div>
         <button class="btn ghost" id="preview" disabled style="width:100%;margin-top:18px">Vista previa</button>
+        <button class="btn ghost" id="guardarBorrador" disabled style="width:100%;margin-top:10px">Guardar borrador</button>
         <button class="btn" id="guardar" disabled style="width:100%;margin-top:10px">Guardar y descargar PDF</button>
-        <div class="hint">Se guarda en el historial con los precios de hoy y después se descarga el PDF.</div>
+        <div class="hint"><b>Borrador:</b> guarda el avance en el historial para retomarlo después, sin PDF. <b>Guardar y descargar PDF:</b> lo deja emitido con los precios de hoy.</div>
         <div class="msg" id="appMsg" style="color:#ffd9cf"></div>
       </aside>
     </div>
@@ -220,7 +225,7 @@ td.num,th.num{text-align:right;white-space:nowrap}
       <button class="btn ghost small" id="fRefresh">Actualizar</button>
     </div>
     <div class="table"><table>
-      <thead><tr><th>Fecha</th><th>Marca</th><th>Cliente</th><th class="num">Cuentas</th><th class="num">Ítems</th><th class="num">Total</th><th></th></tr></thead>
+      <thead><tr><th>Fecha</th><th>Marca</th><th>Cliente</th><th class="num">Cuentas</th><th class="num">Ítems</th><th class="num">Total</th><th>Estado</th><th></th></tr></thead>
       <tbody id="hRows"></tbody>
     </table></div>
     <div class="msg" id="hMsg"></div>
@@ -235,6 +240,7 @@ td.num,th.num{text-align:right;white-space:nowrap}
     <div id="previewDoc"></div>
     <div class="modal-actions">
       <button class="btn ghost" id="volverPreview">Seguir editando</button>
+      <button class="btn ghost" id="guardarBorradorDesdePreview">Guardar borrador</button>
       <button class="btn" id="guardarDesdePreview">Guardar y descargar PDF</button>
     </div>
   </div>
@@ -375,7 +381,7 @@ async function guardarNuevaContrasena(){
 
 async function logout(){
   await sb.auth.signOut();
-  items=[];byId=new Map();estado=new Map();historial=[];
+  items=[];byId=new Map();estado=new Map();historial=[];presupuestoId=null;
   $("topActions").hidden=true;
   $("vNuevo").hidden=true;$("vHistorial").hidden=true;
   $("tarifario").innerHTML="";$("hRows").innerHTML="";
@@ -450,6 +456,7 @@ function recalc(){
   $("sDesc").textContent=moneyNeg(desc);
   $("sTotal").textContent=money(total);
   $("guardar").disabled=n===0;
+  $("guardarBorrador").disabled=n===0;
   $("preview").disabled=n===0;
 }
 
@@ -505,31 +512,109 @@ function construirPresupuesto(){
   };
 }
 
-async function guardarYDescargar(){
+// Id del borrador que se está editando (null = presupuesto nuevo).
+let presupuestoId=null;
+
+function ocupar(b){
+  ["guardar","guardarBorrador","guardarBorradorDesdePreview","guardarDesdePreview"].forEach(id=>$(id).disabled=b);
+  if(!b) recalc();
+}
+
+function mostrarBorrador(){
+  const barra=$("draftBar");
+  if(presupuestoId){
+    $("draftTxt").textContent="Estás editando un borrador guardado. Los cambios se guardan sobre ese mismo presupuesto.";
+    barra.hidden=false;
+  } else {
+    barra.hidden=true;
+  }
+}
+
+// Guarda el presupuesto en el historial. modo: "borrador" o "emitido".
+async function guardarPresupuesto(modo){
   setAppMsg("");
   const p=construirPresupuesto();
-  if(!p) return;
-  $("guardar").disabled=true;
-  const {error}=await sb.from("presupuestos").insert({
+  if(!p) return null;
+  const fila={
     marca:p.marca,cliente:p.cliente,email:p.email||null,telefono:p.telefono||null,cuentas:p.cuentas,
     lista:p.lista,descuento:p.descuento,total:p.total,emitido_at:p.emitido,vence_at:p.vence,
-    tarifario_version:p.version,lineas:p.lineas
-  });
-  $("guardar").disabled=false;
-  if(error){ setAppMsg("No se pudo guardar en el historial. El PDF no se descargó; probá de nuevo."); return; }
-  setAppMsg("Guardado en el historial.",true);
-  recalc();
+    tarifario_version:p.version,lineas:p.lineas,estado:modo,actualizado_at:new Date().toISOString()
+  };
+  ocupar(true);
+  const consulta=presupuestoId
+    ? sb.from("presupuestos").update(fila).eq("id",presupuestoId).select("id").single()
+    : sb.from("presupuestos").insert(fila).select("id").single();
+  const {data,error}=await consulta;
+  ocupar(false);
+  if(error||!data){ setAppMsg("No se pudo guardar. Revisá la conexión y probá de nuevo."); return null; }
+  presupuestoId=data.id;
+  mostrarBorrador();
+  return p;
+}
+
+async function guardarBorradorClick(){
+  const p=await guardarPresupuesto("borrador");
+  if(p) setAppMsg("Borrador guardado. Lo encontrás en Historial para seguir más tarde.",true);
+}
+
+async function guardarYDescargar(){
+  const p=await guardarPresupuesto("emitido");
+  if(!p) return;
+  // Ya emitido: lo siguiente que arme será un presupuesto nuevo, no se pisa este.
+  presupuestoId=null;
+  mostrarBorrador();
+  setAppMsg("Guardado en el historial como emitido.",true);
   await descargarPDF(p);
+}
+
+function limpiarFormulario(){
+  presupuestoId=null;
+  ["marca","cliente","mail","telefono"].forEach(id=>$(id).value="");
+  $("cuentas").value=1;
+  estado.forEach(s=>{s.incluir=false;s.bonificar=false;s.descuento=0;s.cantidad=1;});
+  mostrarBorrador();
+  render();
+  setAppMsg("");
+}
+
+function hayCambiosEnCurso(){
+  return [...estado.values()].some(s=>s.incluir) || $("cliente").value.trim()!=="" || $("marca").value.trim()!=="";
+}
+
+// Carga un borrador del historial en el formulario para seguir editándolo.
+function cargarBorrador(r){
+  if(hayCambiosEnCurso() && !confirm("Se va a reemplazar lo que estás armando ahora. ¿Seguir?")) return;
+  presupuestoId=r.id;
+  $("marca").value=r.marca||"";
+  $("cliente").value=r.cliente||"";
+  $("mail").value=r.email||"";
+  $("telefono").value=r.telefono||"";
+  $("cuentas").value=Number(r.cuentas)||1;
+  estado.forEach(s=>{s.incluir=false;s.bonificar=false;s.descuento=0;s.cantidad=Number(r.cuentas)||1;});
+  (r.lineas||[]).forEach(l=>{
+    const s=estado.get(l.id);
+    if(!s) return; // servicio que ya no está en el tarifario
+    s.incluir=true;
+    s.cantidad=Number(l.cantidad)||1;
+    if(Number(l.pct)===100) s.bonificar=true;
+    else s.descuento=Number(l.pct)||0;
+  });
+  render();
+  mostrarBorrador();
+  mostrarVista("nuevo");
+  setAppMsg("Borrador cargado. Los precios se toman del tarifario de hoy.",true);
 }
 
 function dataUrl(src){
   return new Promise((resolve,reject)=>{
     const im=new Image();
     im.onload=()=>{
-      const c=document.createElement("canvas");
-      c.width=im.naturalWidth;c.height=im.naturalHeight;
-      c.getContext("2d").drawImage(im,0,0);
-      resolve(c.toDataURL("image/png"));
+      try{
+        const c=document.createElement("canvas");
+        c.width=im.naturalWidth;c.height=im.naturalHeight;
+        c.getContext("2d").drawImage(im,0,0);
+        resolve(c.toDataURL("image/png"));
+      }catch(e){ reject(e); }
     };
     im.onerror=reject;
     im.src=src;
@@ -714,20 +799,32 @@ function renderHistorial(){
     (!marca||r.marca===marca) &&
     (!q||(r.cliente||"").toLowerCase().includes(q)||(r.email||"").toLowerCase().includes(q))
   );
-  const total=filtrados.reduce((a,r)=>a+Number(r.total),0);
-  $("hCount").textContent=filtrados.length;
+  // Las tarjetas cuentan solo los presupuestos emitidos; los borradores se listan abajo.
+  const emitidos=filtrados.filter(r=>!esBorrador(r));
+  const total=emitidos.reduce((a,r)=>a+Number(r.total),0);
+  $("hCount").textContent=emitidos.length;
   $("hTotal").textContent=money(total);
-  $("hMarcas").textContent=new Set(filtrados.map(r=>r.marca)).size;
-  $("hRows").innerHTML=filtrados.map(r=>`<tr>
+  $("hMarcas").textContent=new Set(emitidos.map(r=>r.marca)).size;
+  $("hRows").innerHTML=filtrados.map(r=>{
+    const borrador=esBorrador(r);
+    const estadoPill=borrador?'<span class="pill borr">Borrador</span>':'<span class="pill">Emitido</span>';
+    const accion=borrador
+      ? `<button class="btn ghost small" data-abrir="${esc(r.id)}">Abrir</button>`
+      : `<button class="btn ghost small" data-pdf="${esc(r.id)}">PDF</button>`;
+    return `<tr>
     <td>${fecha(r.creado_at)}</td>
     <td><span class="pill">${esc(r.marca)}</span></td>
     <td><b>${esc(r.cliente)}</b><br><span class="muted">${esc(r.email||"")}</span></td>
     <td class="num">${esc(r.cuentas)}</td>
     <td class="num">${(r.lineas||[]).length}</td>
     <td class="num"><b>${money(r.total)}</b></td>
-    <td class="num"><button class="btn ghost small" data-pdf="${esc(r.id)}">PDF</button></td>
-  </tr>`).join("") || `<tr><td colspan="7" class="muted">No hay presupuestos para mostrar.</td></tr>`;
+    <td>${estadoPill}</td>
+    <td class="num">${accion}</td>
+  </tr>`;
+  }).join("") || `<tr><td colspan="8" class="muted">No hay presupuestos para mostrar.</td></tr>`;
 }
+
+function esBorrador(r){ return r.estado==="borrador"; }
 
 function presupuestoDesdeFila(r){
   return {marca:r.marca,cliente:r.cliente,email:r.email||"",telefono:r.telefono||"",cuentas:r.cuentas,
@@ -747,14 +844,23 @@ $("cuentas").onchange=aplicarCuentas;
 $("tarifario").addEventListener("change",onTarifarioChange);
 $("tarifario").addEventListener("input",onTarifarioChange);
 $("guardar").onclick=guardarYDescargar;
+$("guardarBorrador").onclick=guardarBorradorClick;
 $("preview").onclick=abrirPreview;
 $("cerrarPreview").onclick=()=>{$("modal").hidden=true;};
 $("volverPreview").onclick=()=>{$("modal").hidden=true;};
+$("guardarBorradorDesdePreview").onclick=async()=>{$("modal").hidden=true;await guardarBorradorClick();};
 $("guardarDesdePreview").onclick=async()=>{$("modal").hidden=true;await guardarYDescargar();};
+$("nuevoPresupuesto").onclick=limpiarFormulario;
 $("fMarca").onchange=renderHistorial;
 $("fTexto").oninput=renderHistorial;
 $("fRefresh").onclick=cargarHistorial;
 $("hRows").addEventListener("click",e=>{
+  const abrir=e.target.closest("[data-abrir]")?.dataset.abrir;
+  if(abrir){
+    const r=historial.find(x=>x.id===abrir);
+    if(r) cargarBorrador(r);
+    return;
+  }
   const id=e.target.closest("[data-pdf]")?.dataset.pdf;
   if(!id) return;
   const r=historial.find(x=>x.id===id);
