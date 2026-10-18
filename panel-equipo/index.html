@@ -233,7 +233,8 @@ async function init(){
     setLoginErr("Panel en configuración. Volvé a intentar en unos minutos.");
     return;
   }
-  sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+  try{ sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY); }
+  catch(e){ $("login").hidden=false; setLoginErr("No se pudo conectar con la base de datos. Recargá la página."); return; }
   sb.auth.onAuthStateChange((event)=>{
     if(event==="PASSWORD_RECOVERY"){ mostrarReset(); }
   });
@@ -251,6 +252,17 @@ async function login(){
 }
 
 async function mostrar(){
+  try{ await mostrarInterno(); }
+  catch(e){
+    console.error(e);
+    $("topActions").hidden=true;
+    $("app").hidden=true;
+    $("login").hidden=false;
+    setLoginErr("Hubo un problema al abrir el panel. Tocá Ingresar de nuevo. Detalle: "+(e&&e.message?e.message:e));
+  }
+}
+
+async function mostrarInterno(){
   const {data,error}=await sb.from("tarifario_comunicacion_items").select("*").eq("activo",true).order("orden");
   if(error){
     setLoginErr("No se pudo cargar el tarifario. Volvé a ingresar.");
