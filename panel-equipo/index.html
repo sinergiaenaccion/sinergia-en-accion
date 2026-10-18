@@ -117,7 +117,8 @@ td.num,th.num{text-align:right;white-space:nowrap}
 
 <main>
   <!-- Acceso -->
-  <section class="box login" id="login" hidden>
+  <section class="box login" id="login">
+    <div class="msg" id="cargando" style="margin:0 0 8px;color:#5d7178">Cargando panel…</div>
     <div class="eyebrow">Acceso privado</div>
     <h1>Ingresar</h1>
     <p class="muted">Usá el mail y la contraseña del equipo.</p>
@@ -239,6 +240,7 @@ async function init(){
 }
 
 async function iniciarSesion(){
+  $("cargando").textContent="";
   if(SUPABASE_ANON_KEY.startsWith("PEGAR")){
     $("login").hidden=false;
     setLoginErr("Panel en configuración. Volvé a intentar en unos minutos.");
