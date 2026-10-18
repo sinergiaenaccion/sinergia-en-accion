@@ -189,7 +189,9 @@ td.num,th.num{text-align:right;white-space:nowrap}
 </main>
 
 <script>
-const FN="https://ccxoadcldblgsuaywfwk.supabase.co/functions/v1",CONFIG_URL=FN+"/sinergia-panel-config";
+// Proyecto Supabase "sinergia-equipo" (organización Sinergia en acción). La clave anon es pública por diseño.
+const SUPABASE_URL="https://qijwtwmyfsztucwymeoo.supabase.co";
+const SUPABASE_ANON_KEY="PEGAR_ANON_KEY";
 const VALIDEZ_DIAS=15, VERSION_TARIFARIO="2026-10";
 const CONTACTO="+54 9 351 606-3053 · sinergiaenaccion.consultoria@gmail.com";
 const DESCUENTOS=[0,10,20,30,50];
@@ -217,16 +219,12 @@ function setAppMsg(t,ok){$("appMsg").textContent=t;$("appMsg").style.color=ok?"#
 function setHMsg(t,err){$("hMsg").textContent=t;$("hMsg").className="msg "+(err?"err":"ok")}
 
 async function init(){
-  try{
-    const r=await fetch(CONFIG_URL);
-    if(!r.ok) throw new Error("config");
-    const k=await r.json();
-    sb=window.supabase.createClient(k.url,k.key);
-  }catch(e){
+  if(SUPABASE_ANON_KEY.startsWith("PEGAR")){
     $("login").hidden=false;
-    setLoginErr("No se pudo iniciar el panel. Probá de nuevo en unos minutos.");
+    setLoginErr("Panel en configuración. Volvé a intentar en unos minutos.");
     return;
   }
+  sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
   const {data}=await sb.auth.getSession();
   if(data.session){ await mostrar(); } else { $("login").hidden=false; }
 }
