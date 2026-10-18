@@ -302,14 +302,70 @@ async function iniciarSesion(){
     setLoginErr("Panel en configuración. Volvé a intentar en unos minutos.");
     return;
   }
-  sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+  // La sesión vive solo en esta pestaña: al cerrarla o cerrar el navegador, hay que volver a ingresar.
+  sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{
+    auth:{storage:window.sessionStorage,persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
+  });
   sb.auth.onAuthStateChange((event)=>{
     if(event==="PASSWORD_RECOVERY"){ mostrarReset(); }
   });
   if(window.location.hash.includes("type=recovery")){ mostrarReset(); return; }
   const {data}=await sb.auth.getSession();
-  if(data.session){ await mostrar(); } else { $("login").hidden=false; }
+  if(data.session){
+    // Si la pestaña quedó abierta más de 5 minutos sin uso, se cierra la sesión antes de mostrar nada.
+    const ultima=Number(sessionStorage.getItem(CLAVE_ACTIVIDAD))||0;
+    if(ultima && Date.now()-ultima>INACTIVIDAD_MS){
+      await cerrarSesion("Sesión cerrada por inactividad. Ingresá de nuevo para seguir.");
+      return;
+    }
+    await mostrar();
+  } else { $("login").hidden=false; }
 }
+
+/* ---------- Seguridad: cierre por inactividad ---------- */
+let INACTIVIDAD_MS=5*60*1000;          // 5 minutos sin actividad
+const CLAVE_ACTIVIDAD="panelUltimaActividad";
+let logueado=false, timerInactividad=null, ultimaActividad=Date.now(), ultimoGuardado=0;
+
+function registrarActividad(){
+  if(!logueado) return;
+  ultimaActividad=Date.now();
+  if(ultimaActividad-ultimoGuardado>10000){
+    try{ sessionStorage.setItem(CLAVE_ACTIVIDAD,String(ultimaActividad)); }catch(e){}
+    ultimoGuardado=ultimaActividad;
+  }
+  clearTimeout(timerInactividad);
+  timerInactividad=setTimeout(cerrarPorInactividad,INACTIVIDAD_MS);
+}
+
+// Pensado para cuando el celu o la pestaña estuvieron en segundo plano y el timer no corrió.
+function comprobarInactividad(){
+  if(logueado && Date.now()-ultimaActividad>INACTIVIDAD_MS) cerrarPorInactividad();
+}
+
+function cerrarPorInactividad(){
+  cerrarSesion("Sesión cerrada por inactividad. Ingresá de nuevo para seguir.");
+}
+
+// Cierra la sesión en el servidor (global: también invalida el acceso de esta sesión en cualquier dispositivo) y limpia la pantalla.
+async function cerrarSesion(mensaje){
+  logueado=false;
+  clearTimeout(timerInactividad);
+  try{ if(sb) await sb.auth.signOut({scope:"global"}); }catch(e){ console.error(e); }
+  try{ sessionStorage.removeItem(CLAVE_ACTIVIDAD); }catch(e){}
+  items=[];byId=new Map();estado=new Map();historial=[];presupuestoId=null;
+  $("topActions").hidden=true;
+  $("vNuevo").hidden=true;$("vHistorial").hidden=true;$("reset").hidden=true;
+  $("modal").hidden=true;
+  $("tarifario").innerHTML="";$("hRows").innerHTML="";
+  $("password").value="";
+  $("login").hidden=false;
+  setLoginErr(mensaje||"");
+}
+
+["click","keydown","mousemove","touchstart","scroll"].forEach(ev=>
+  document.addEventListener(ev,registrarActividad,{passive:true}));
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden) comprobarInactividad(); });
 
 async function login(){
   setLoginErr("");
@@ -353,6 +409,9 @@ async function mostrarInterno(){
   $("who").textContent=u?u.email:"";
   render();
   mostrarVista("nuevo");
+  logueado=true;
+  ultimoGuardado=0;
+  registrarActividad();
 }
 
 function mostrarReset(){
@@ -377,16 +436,6 @@ async function guardarNuevaContrasena(){
   $("reset").hidden=true;
   $("login").hidden=false;
   setLoginErr("Contraseña guardada. Ya podés ingresar.");
-}
-
-async function logout(){
-  await sb.auth.signOut();
-  items=[];byId=new Map();estado=new Map();historial=[];presupuestoId=null;
-  $("topActions").hidden=true;
-  $("vNuevo").hidden=true;$("vHistorial").hidden=true;
-  $("tarifario").innerHTML="";$("hRows").innerHTML="";
-  $("password").value="";
-  $("login").hidden=false;
 }
 
 function mostrarVista(v){
@@ -837,7 +886,7 @@ $("go").onclick=login;
 $("savePassword").onclick=guardarNuevaContrasena;
 $("forgot").onclick=pedirRecuperacion;
 $("password").onkeydown=e=>{if(e.key==="Enter")login()};
-$("logout").onclick=logout;
+$("logout").onclick=()=>cerrarSesion("");
 $("tabNuevo").onclick=()=>mostrarVista("nuevo");
 $("tabHistorial").onclick=()=>mostrarVista("historial");
 $("cuentas").onchange=aplicarCuentas;
