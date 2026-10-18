@@ -129,6 +129,17 @@ td.num,th.num{text-align:right;white-space:nowrap}
     <button type="button" class="pill-btn" id="forgot" style="background:none;border:0;color:#073e4b;text-decoration:underline;padding:6px 0;margin-top:6px">¿Olvidaste tu contraseña?</button>
   </section>
 
+  <!-- Nueva contraseña (link del mail) -->
+  <section class="box login" id="reset" hidden>
+    <div class="eyebrow">Seguridad</div>
+    <h1>Nueva contraseña</h1>
+    <p class="muted">Elegí una contraseña para entrar al panel.</p>
+    <label class="field">Nueva contraseña<input id="newPassword" type="password" autocomplete="new-password"></label>
+    <label class="field">Repetir contraseña<input id="confirmPassword" type="password" autocomplete="new-password"></label>
+    <button class="btn" id="savePassword" style="width:100%">Guardar contraseña</button>
+    <div class="msg err" id="resetErr"></div>
+  </section>
+
   <!-- Nuevo presupuesto -->
   <section id="vNuevo" hidden>
     <div class="layout">
@@ -268,7 +279,7 @@ async function mostrar(){
   catch(e){
     console.error(e);
     $("topActions").hidden=true;
-    $("app").hidden=true;
+    $("vNuevo").hidden=true;
     $("login").hidden=false;
     setLoginErr("Hubo un problema al abrir el panel. Tocá Ingresar de nuevo. Detalle: "+(e&&e.message?e.message:e));
   }
@@ -301,7 +312,8 @@ async function mostrarInterno(){
 
 function mostrarReset(){
   $("login").hidden=true;
-  $("app").hidden=true;
+  $("vNuevo").hidden=true;
+  $("vHistorial").hidden=true;
   $("topActions").hidden=true;
   $("reset").hidden=false;
   $("resetErr").textContent="";
