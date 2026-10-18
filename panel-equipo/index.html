@@ -42,18 +42,19 @@ label.field input{margin-top:5px}
 .msg{min-height:22px;font-weight:700;margin-top:10px}
 .msg.err{color:#a33}
 .msg.ok{color:#17766f}
-.layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:22px;align-items:start}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:22px;align-items:start}
 .card-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0 16px;margin-top:14px}
 .etapa{margin-top:18px}
 .etapa>h3{display:flex;align-items:center;gap:10px;color:var(--d);padding:8px 0;border-bottom:2px solid var(--y)}
 .etapa>h3 span{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--d);color:#fff;font-size:12px}
-.row{display:grid;grid-template-columns:minmax(0,1fr) 110px 104px 150px 78px 110px;gap:10px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line);border-radius:12px}
+.row{display:grid;grid-template-columns:minmax(200px,1fr) 140px 110px 150px 80px 120px;gap:12px;align-items:center;padding:10px 12px;border-bottom:1px solid var(--line);border-radius:12px}
+.row>*{min-width:0}
 .row.on{background:#eef8f5}
 .sel{display:flex;gap:10px;align-items:flex-start;cursor:pointer;min-width:0}
 .sel input{width:18px;height:18px;margin-top:3px;flex:none;accent-color:var(--t)}
 .sel b{display:block}
 .sel small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
-.precio{font-weight:800;text-align:right;white-space:nowrap}
+.precio{font-weight:800;text-align:right;white-space:nowrap;overflow:visible}
 .precio small{display:block;font-weight:600;color:var(--muted);font-size:10px}
 .chk{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
 .chk input{width:18px;height:18px;accent-color:#c4871c}
