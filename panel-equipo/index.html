@@ -7,7 +7,7 @@
 <title>Panel Equipo · Sinergia en Acción</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js"></script>
 <style>
 :root{--i:#073e4b;--d:#063743;--y:#ffc83e;--t:#26aaa7;--line:#dfe8e5;--muted:#5d7178}
 *{box-sizing:border-box}
@@ -78,6 +78,7 @@ th{font:800 10px system-ui;text-transform:uppercase;letter-spacing:.08em;color:v
 td.num,th.num{text-align:right;white-space:nowrap}
 .pill{background:#e7f3ef;border-radius:999px;padding:4px 9px;font-weight:800;font-size:12px;white-space:nowrap}
 .hidden{display:none!important}
+[hidden]{display:none!important}
 @media(max-width:1000px){
  .layout{grid-template-columns:1fr}
  .summary{position:static}
@@ -228,13 +229,22 @@ function setAppMsg(t,ok){$("appMsg").textContent=t;$("appMsg").style.color=ok?"#
 function setHMsg(t,err){$("hMsg").textContent=t;$("hMsg").className="msg "+(err?"err":"ok")}
 
 async function init(){
+  try{
+    await iniciarSesion();
+  }catch(e){
+    console.error(e);
+    $("login").hidden=false;
+    setLoginErr("No se pudo abrir el panel. Tocá Ingresar. Detalle: "+(e&&e.message?e.message:e));
+  }
+}
+
+async function iniciarSesion(){
   if(SUPABASE_ANON_KEY.startsWith("PEGAR")){
     $("login").hidden=false;
     setLoginErr("Panel en configuración. Volvé a intentar en unos minutos.");
     return;
   }
-  try{ sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY); }
-  catch(e){ $("login").hidden=false; setLoginErr("No se pudo conectar con la base de datos. Recargá la página."); return; }
+  sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
   sb.auth.onAuthStateChange((event)=>{
     if(event==="PASSWORD_RECOVERY"){ mostrarReset(); }
   });
