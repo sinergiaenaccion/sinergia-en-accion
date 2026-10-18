@@ -225,6 +225,10 @@ async function init(){
     return;
   }
   sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+  sb.auth.onAuthStateChange((event)=>{
+    if(event==="PASSWORD_RECOVERY"){ mostrarReset(); }
+  });
+  if(window.location.hash.includes("type=recovery")){ mostrarReset(); return; }
   const {data}=await sb.auth.getSession();
   if(data.session){ await mostrar(); } else { $("login").hidden=false; }
 }
@@ -260,6 +264,29 @@ async function mostrar(){
   $("who").textContent=u?u.email:"";
   render();
   mostrarVista("nuevo");
+}
+
+function mostrarReset(){
+  $("login").hidden=true;
+  $("app").hidden=true;
+  $("topActions").hidden=true;
+  $("reset").hidden=false;
+  $("resetErr").textContent="";
+}
+
+async function guardarNuevaContrasena(){
+  const p1=$("newPassword").value, p2=$("confirmPassword").value;
+  $("resetErr").textContent="";
+  if(p1.length<10){ $("resetErr").textContent="Usá al menos 10 caracteres."; return; }
+  if(p1!==p2){ $("resetErr").textContent="Las contraseñas no coinciden."; return; }
+  const {error}=await sb.auth.updateUser({password:p1});
+  if(error){ $("resetErr").textContent="No se pudo guardar. Pedí un nuevo link de recuperación."; return; }
+  $("newPassword").value="";$("confirmPassword").value="";
+  history.replaceState(null,"",window.location.pathname);
+  await sb.auth.signOut();
+  $("reset").hidden=true;
+  $("login").hidden=false;
+  setLoginErr("Contraseña guardada. Ya podés ingresar.");
 }
 
 async function logout(){
@@ -569,6 +596,7 @@ function presupuestoDesdeFila(r){
 
 /* ---------- Eventos ---------- */
 $("go").onclick=login;
+$("savePassword").onclick=guardarNuevaContrasena;
 $("password").onkeydown=e=>{if(e.key==="Enter")login()};
 $("logout").onclick=logout;
 $("tabNuevo").onclick=()=>mostrarVista("nuevo");
