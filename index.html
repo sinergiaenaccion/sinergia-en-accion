@@ -162,8 +162,10 @@ header:hover .real-logo{transform:rotate(10deg) scale(1.05)}
 @media(max-width:800px){.course:after{left:22px;bottom:20px}.course.open .course-detail{padding:16px 22px 58px}}
 </style><style>
 /* Final premium motion pass */
-@keyframes brandWheel3D{0%{transform:perspective(500px) rotateY(0deg) rotateX(0deg)}25%{transform:perspective(500px) rotateY(18deg) rotateX(3deg)}50%{transform:perspective(500px) rotateY(0deg) rotateX(0deg)}75%{transform:perspective(500px) rotateY(-18deg) rotateX(-3deg)}100%{transform:perspective(500px) rotateY(0deg) rotateX(0deg)}}
-header .real-logo{animation:brandWheel3D 6s ease-in-out infinite;transform-style:preserve-3d;will-change:transform}
+@keyframes simboloGira{from{transform:perspective(600px) rotateY(0deg)}to{transform:perspective(600px) rotateY(360deg)}}
+/* Solo gira el símbolo; el nombre "SINERGIA EN ACCIÓN" queda fijo. */
+nav .real-logo,.footer-brand img{animation:simboloGira 14s linear infinite;transform-style:preserve-3d;will-change:transform}
+@media (prefers-reduced-motion: reduce){nav .real-logo,.footer-brand img{animation:none!important}}
 header:hover .real-logo{animation-duration:3.2s}
 
 /* Capsules: stronger edge/depth and clearer spacing */
@@ -212,7 +214,7 @@ nav .real-logo{
   filter:drop-shadow(0 12px 16px rgba(7,62,75,.2));
   transform-origin:50% 50%;
   will-change:transform;
-  animation:brandSway3d 6.8s cubic-bezier(.45,.05,.55,.95) infinite;
+  animation:simboloGira 14s linear infinite;
 }
 nav .brand b{
   font-size:clamp(21px,2vw,29px);
@@ -227,10 +229,6 @@ nav .brand small{
   letter-spacing:.24em;
 }
 .hero h1{font-size:clamp(48px,6.2vw,84px)}
-@keyframes brandSway3d{
-  0%,100%{transform:perspective(650px) rotateY(-8deg) rotateZ(-1deg) translateX(0) scale(1)}
-  50%{transform:perspective(650px) rotateY(9deg) rotateZ(1deg) translateX(7px) scale(1.025)}
-}
 @media(max-width:800px){
   nav{min-height:96px;padding:10px 6vw}
   nav .brand{gap:11px}
@@ -880,6 +878,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  modal.addEventListener('click',e=>{if(e.target===modal)close()});
  document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
  document.querySelectorAll('.training .course').forEach((card,i)=>{
+   const d=data[i];
    const old=card.querySelector('.course-actions');if(old)old.remove();
    card.querySelectorAll('.course-price,.course-price-live,.course-soon').forEach(x=>x.remove());
    const actions=document.createElement('div');actions.className='course-actions-live';
