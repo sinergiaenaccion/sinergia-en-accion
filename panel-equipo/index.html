@@ -124,6 +124,7 @@ td.num,th.num{text-align:right;white-space:nowrap}
     <label class="field">Contraseña<input id="password" type="password" autocomplete="current-password"></label>
     <button class="btn" id="go" style="width:100%">Ingresar</button>
     <div class="msg err" id="loginErr"></div>
+    <button type="button" class="pill-btn" id="forgot" style="background:none;border:0;color:#073e4b;text-decoration:underline;padding:6px 0;margin-top:6px">¿Olvidaste tu contraseña?</button>
   </section>
 
   <!-- Nuevo presupuesto -->
@@ -213,6 +214,14 @@ const money=n=>"$ "+Math.round(Number(n)||0).toLocaleString("es-AR");
 const moneyNeg=n=>"- "+money(n);
 const fecha=d=>new Date(d).toLocaleDateString("es-AR");
 const slug=s=>String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-zA-Z0-9]+/g,"-").replace(/^-|-$/g,"")||"sin-nombre";
+
+const PANEL_URL="https://sinergiaenaccion.github.io/sinergia-en-accion/panel-equipo/";
+async function pedirRecuperacion(){
+  const email=$("email").value.trim();
+  if(!email){ setLoginErr("Escribí primero tu email y después tocá ¿Olvidaste tu contraseña?"); return; }
+  const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:PANEL_URL});
+  setLoginErr(error?"No se pudo enviar el mail. Probá de nuevo en unos minutos.":"Si el email está registrado, te va a llegar un mail para crear la contraseña.");
+}
 
 function setLoginErr(t){$("loginErr").textContent=t}
 function setAppMsg(t,ok){$("appMsg").textContent=t;$("appMsg").style.color=ok?"#bff0e9":"#ffd9cf"}
@@ -597,6 +606,7 @@ function presupuestoDesdeFila(r){
 /* ---------- Eventos ---------- */
 $("go").onclick=login;
 $("savePassword").onclick=guardarNuevaContrasena;
+$("forgot").onclick=pedirRecuperacion;
 $("password").onkeydown=e=>{if(e.key==="Enter")login()};
 $("logout").onclick=logout;
 $("tabNuevo").onclick=()=>mostrarVista("nuevo");
